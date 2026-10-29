@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards</title>
+<style>
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --ink: #23272f;
+  --muted: #6b7280;
+  --accent: #4f5dd7;
+  --accent-soft: #e8eafc;
+  --known: #2e8b57;
+  --unknown: #c24141;
+  --border: #dfe3ec;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+header.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+header.top h1 { margin: 0; font-size: 1.35rem; }
+header.top .sub { color: var(--muted); font-size: 0.85rem; }
+header.top a { color: var(--accent); text-decoration: none; }
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+select, button, .toggle {
+  font: inherit;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+button:hover, .toggle:hover { border-color: var(--accent); }
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.toggle label { cursor: pointer; display: inline-flex; gap: 0.4rem; align-items: center; }
+.progress {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.progress .known-dot { color: var(--known); font-weight: 600; }
+.progress .unknown-dot { color: var(--unknown); font-weight: 600; }
+.card-area { perspective: 1200px; margin-bottom: 1rem; }
+.card {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  transform-style: preserve-3d;
+  transition: transform 0.45s;
+  cursor: pointer;
+}
+.card.flipped { transform: rotateY(180deg); }
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  word-break: break-word;
+  overflow: auto;
+}
+.face.front { background: var(--card); }
+.face.back {
+  background: var(--accent-soft);
+  transform: rotateY(180deg);
+}
+.face .label {
+  position: absolute;
+  top: 0.75rem;
+  left: 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.face .side { font-size: 1.25rem; }
+.hint { text-align: center; color: var(--muted); font-size: 0.8rem; margin: -0.5rem 0 1rem; }
+.judge {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.judge .know { color: var(--known); }
+.judge .dunno { color: var(--unknown); }
+nav.card-nav {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+}
+nav.card-nav .pos { color: var(--muted); font-size: 0.85rem; min-width: 6ch; text-align: center; }
+footer {
+  margin-top: 2rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+@media (max-width: 480px) {
+  .face .side { font-size: 1.05rem; }
+  .card { min-height: 220px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Flashcards</h1>
+    <span class="sub">Generated from 18 cards in 2 deck(s).</span>
+    <a href="print.html">Print sheet</a>
+  </header>
+
+  <div class="controls">
+    <label for="deck-select">Deck:</label>
+    <select id="deck-select">
+      <option value="0">Ai Basics (10 cards)</option>
+<option value="1">Healthcare Study (8 cards)</option>
+    </select>
+    <button id="shuffle-btn" type="button" title="Shuffle into a new random order">Shuffle</button>
+    <button id="order-btn" type="button" title="Back to the original CSV order">Original order</button>
+    <span class="toggle">
+      <label><input type="checkbox" id="reverse-toggle"> Reverse (back first)</label>
+    </span>
+    <button id="reset-btn" type="button">Reset marks</button>
+    <button id="review-unknown-btn" type="button" hidden>Study “not yet” cards</button>
+  </div>
+
+  <p class="progress" id="progress"></p>
+
+  <div class="card-area">
+    <div class="card" id="card" tabindex="0" aria-live="polite">
+      <div class="face front">
+        <span class="label" id="front-label"></span>
+        <span class="side" id="front-side"></span>
+      </div>
+      <div class="face back">
+        <span class="label" id="back-label"></span>
+        <span class="side" id="back-side"></span>
+      </div>
+    </div>
+  </div>
+  <p class="hint">Click the card (or press Space) to flip. ← → to move between cards.</p>
+
+  <div class="judge">
+    <button class="know" id="know-btn" type="button" title="I know this card">✓ Know it (K)</button>
+    <button class="dunno" id="dunno-btn" type="button" title="I don't know this card yet">✗ Not yet (N)</button>
+  </div>
+
+  <nav class="card-nav">
+    <button id="prev-btn" type="button" aria-label="Previous card">← Prev</button>
+    <span class="pos" id="pos"></span>
+    <button id="next-btn" type="button" aria-label="Next card">Next →</button>
+  </nav>
+
+  <footer>
+    Built with csv-flashcards-site — a static template by
+    <strong>Asdale Dynamics, LLC</strong>. Works offline; no data leaves this page.
+  </footer>
+</div>
+
+<script>
+"use strict";
+var DECKS = [
+ {
+  "name": "Ai Basics",
+  "slug": "ai-basics",
+  "front_label": "Term",
+  "back_label": "Definition",
+  "cards": [
+   {
+    "id": 2,
+    "front": "Prompt",
+    "back": "A question or instruction you give an AI to get a response"
+   },
+   {
+    "id": 3,
+    "front": "Large language model",
+    "back": "An AI trained on lots of text that predicts what should come next"
+   },
+   {
+    "id": 4,
+    "front": "Token",
+    "back": "A chunk of text (about a word) that an AI reads one piece at a time"
+   },
+   {
+    "id": 5,
+    "front": "Chatbot",
+    "back": "A conversational program you ask questions in plain English"
+   },
+   {
+    "id": 6,
+    "front": "Hallucination",
+    "back": "When an AI makes something up and states it confidently"
+   },
+   {
+    "id": 7,
+    "front": "Context window",
+    "back": "How much text the AI can keep in mind at once during a conversation"
+   },
+   {
+    "id": 8,
+    "front": "Fine-tuning",
+    "back": "Extra training that specializes a general AI model for one job"
+   },
+   {
+    "id": 9,
+    "front": "Agent",
+    "back": "An AI that can take multi-step actions on your behalf not just chat"
+   },
+   {
+    "id": 10,
+    "front": "System prompt",
+    "back": "Standing instructions that tell an AI how to behave before you talk"
+   },
+   {
+    "id": 11,
+    "front": "API",
+    "back": "A way for programs to talk to each other over the network"
+   }
+  ]
+ },
+ {
+  "name": "Healthcare Study",
+  "slug": "healthcare-study",
+  "front_label": "Term",
+  "back_label": "Definition",
+  "cards": [
+   {
+    "id": 2,
+    "front": "Vital signs",
+    "back": "Four core measurements: temperature pulse respirations and blood pressure"
+   },
+   {
+    "id": 3,
+    "front": "Tachycardia",
+    "back": "A resting heart rate above the normal range (generally over 100 in adults)"
+   },
+   {
+    "id": 4,
+    "front": "Hypoglycemia",
+    "back": "Blood sugar that is lower than the safe range"
+   },
+   {
+    "id": 5,
+    "front": "Baseline",
+    "back": "A patient's usual normal value used to spot meaningful change"
+   },
+   {
+    "id": 6,
+    "front": "SBAR",
+    "back": "A structured handoff format: Situation Background Assessment Recommendation"
+   },
+   {
+    "id": 7,
+    "front": "PRN",
+    "back": "From Latin pro re nata: as needed rather than on a fixed schedule"
+   },
+   {
+    "id": 8,
+    "front": "NPO",
+    "back": "Nothing by mouth (nil per os) before a procedure or test"
+   },
+   {
+    "id": 9,
+    "front": "Tolerance",
+    "back": "When a dose stops producing the same effect over time"
+   }
+  ]
+ }
+];
+
+var state = {
+  deckIndex: 0,
+  order: [],          // array of card indexes into DECKS[i].cards
+  position: 0,
+  reversed: false,
+  known: {},          // card index -> true
+  unknown: {},        // card index -> true
+  unknownOnly: false
+};
+
+var el = function (id) { return document.getElementById(id); };
+var cardEl = el("card");
+
+function labels() {
+  var deck = DECKS[state.deckIndex];
+  if (state.reversed) {
+    return { first: deck.back_label, second: deck.front_label };
+  }
+  return { first: deck.front_label, second: deck.back_label };
+}
+
+function sidesFor(card) {
+  if (state.reversed) {
+    return { first: card.back, second: card.front };
+  }
+  return { first: card.front, second: card.back };
+}
+
+function visibleOrder() {
+  if (!state.unknownOnly) { return state.order; }
+  return state.order.filter(function (idx) { return state.unknown[idx]; });
+}
+
+function setOrder(order) {
+  state.order = order.slice();
+  state.position = 0;
+  render();
+}
+
+function shuffled() {
+  var idxs = DECKS[state.deckIndex].cards.map(function (_, i) { return i; });
+  for (var i = idxs.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = idxs[i]; idxs[i] = idxs[j]; idxs[j] = tmp;
+  }
+  return idxs;
+}
+
+function switchDeck(i) {
+  state.deckIndex = i;
+  state.position = 0;
+  state.known = {};
+  state.unknown = {};
+  state.unknownOnly = false;
+  setOrder(DECKS[i].cards.map(function (_, idx) { return idx; }));
+}
+
+function flip() { cardEl.classList.toggle("flipped"); }
+
+function move(delta) {
+  var order = visibleOrder();
+  if (!order.length) { return; }
+  state.position = (state.position + delta + order.length) % order.length;
+  render();
+}
+
+function mark(known) {
+  var order = visibleOrder();
+  if (!order.length) { return; }
+  var cardIdx = order[state.position];
+  var deck = DECKS[state.deckIndex];
+  if (known) {
+    state.known[cardIdx] = true;
+    delete state.unknown[cardIdx];
+  } else {
+    state.unknown[cardIdx] = true;
+    delete state.known[cardIdx];
+  }
+  el("review-unknown-btn").hidden = Object.keys(state.unknown).length === 0;
+  var remaining = order.filter(function (idx) {
+    return !state.known[idx];
+  });
+  if (remaining.length > 0) {
+    move(1);
+  } else {
+    render();
+  }
+  void deck;
+}
+
+function render() {
+  var deck = DECKS[state.deckIndex];
+  var order = visibleOrder();
+  el("review-unknown-btn").hidden = Object.keys(state.unknown).length === 0;
+  el("review-unknown-btn").textContent = state.unknownOnly
+    ? "Study all cards"
+    : "Study “not yet” cards (" + Object.keys(state.unknown).length + ")";
+
+  if (!order.length) {
+    el("front-label").textContent = labels().first;
+    el("front-side").textContent = state.unknownOnly
+      ? "All “not yet” cards are marked known. Nice work — tap “Study all cards”."
+      : "This deck has no cards.";
+    el("back-side").textContent = "";
+  } else {
+    if (state.position >= order.length) { state.position = 0; }
+    var sides = sidesFor(deck.cards[order[state.position]]);
+    el("front-label").textContent = labels().first;
+    el("back-label").textContent = labels().second;
+    el("front-side").textContent = sides.first;
+    el("back-side").textContent = sides.second;
+    el("pos").textContent = (state.position + 1) + " / " + order.length;
+  }
+
+  var knownCount = Object.keys(state.known).length;
+  var unknownCount = Object.keys(state.unknown).length;
+  var extra = state.unknownOnly ? " (showing “not yet” cards only)" : "";
+  el("progress").innerHTML =
+    '<span class="known-dot">' + knownCount + " known</span> · " +
+    '<span class="unknown-dot">' + unknownCount + " not yet</span> · " +
+    (deck.cards.length - knownCount) + " left in queue" + extra;
+}
+
+el("card").addEventListener("click", flip);
+el("shuffle-btn").addEventListener("click", function () {
+  state.unknownOnly = false;
+  setOrder(shuffled());
+});
+el("order-btn").addEventListener("click", function () {
+  state.unknownOnly = false;
+  setOrder(DECKS[state.deckIndex].cards.map(function (_, idx) { return idx; }));
+});
+el("reverse-toggle").addEventListener("change", function (e) {
+  state.reversed = e.target.checked;
+  render();
+});
+el("prev-btn").addEventListener("click", function () { move(-1); });
+el("next-btn").addEventListener("click", function () { move(1); });
+el("know-btn").addEventListener("click", function () { mark(true); });
+el("dunno-btn").addEventListener("click", function () { mark(false); });
+el("reset-btn").addEventListener("click", function () {
+  state.known = {};
+  state.unknown = {};
+  state.unknownOnly = false;
+  el("review-unknown-btn").hidden = true;
+  render();
+});
+el("review-unknown-btn").addEventListener("click", function () {
+  state.unknownOnly = !state.unknownOnly;
+  state.position = 0;
+  render();
+});
+el("deck-select").addEventListener("change", function (e) {
+  switchDeck(parseInt(e.target.value, 10));
+});
+document.addEventListener("keydown", function (e) {
+  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") { return; }
+  if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
+  else if (e.key === "ArrowRight") { move(1); }
+  else if (e.key === "ArrowLeft") { move(-1); }
+  else if (e.key.toLowerCase() === "k") { mark(true); }
+  else if (e.key.toLowerCase() === "n") { mark(false); }
+});
+
+switchDeck(0);
+</script>
+</body>
+</html>

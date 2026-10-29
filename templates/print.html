@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #23272f;
+  font-size: 12pt;
+}
+.wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+h1 { font-size: 1.3rem; margin: 0 0 0.25rem; }
+p.note { color: #6b7280; font-size: 0.85rem; margin: 0 0 1.5rem; }
+section.deck { margin-bottom: 2rem; page-break-inside: avoid; }
+section.deck h2 { font-size: 1.05rem; margin: 0 0 0.5rem; }
+section.deck h2 .labels { font-weight: normal; color: #6b7280; font-size: 0.8rem; }
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  border: 1px solid #9aa2b1;
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #eef0f5; }
+td.num, th:first-child { width: 3ch; text-align: right; }
+td.mark, th:last-child { width: 8ch; text-align: center; }
+@media print {
+  header.site { display: none; }
+  body { font-size: 10.5pt; }
+  .wrap { padding: 0; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>{{TITLE}}</h1>
+  <p class="note">Every card, in CSV order. Cut the rows apart to quiz yourself on paper.
+  <a href="index.html">Back to the cards</a></p>
+  {{DECK_SECTIONS}}
+</div>
+</body>
+</html>

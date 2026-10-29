@@ -1,0 +1,11 @@
+Term,Definition
+Prompt,A question or instruction you give an AI to get a response
+Large language model,An AI trained on lots of text that predicts what should come next
+Token,A chunk of text (about a word) that an AI reads one piece at a time
+Chatbot,A conversational program you ask questions in plain English
+Hallucination,When an AI makes something up and states it confidently
+Context window,How much text the AI can keep in mind at once during a conversation
+Fine-tuning,Extra training that specializes a general AI model for one job
+Agent,An AI that can take multi-step actions on your behalf not just chat
+System prompt,Standing instructions that tell an AI how to behave before you talk
+API,A way for programs to talk to each other over the network

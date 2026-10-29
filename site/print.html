@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards — Print Sheet</title>
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #23272f;
+  font-size: 12pt;
+}
+.wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+h1 { font-size: 1.3rem; margin: 0 0 0.25rem; }
+p.note { color: #6b7280; font-size: 0.85rem; margin: 0 0 1.5rem; }
+section.deck { margin-bottom: 2rem; page-break-inside: avoid; }
+section.deck h2 { font-size: 1.05rem; margin: 0 0 0.5rem; }
+section.deck h2 .labels { font-weight: normal; color: #6b7280; font-size: 0.8rem; }
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  border: 1px solid #9aa2b1;
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #eef0f5; }
+td.num, th:first-child { width: 3ch; text-align: right; }
+td.mark, th:last-child { width: 8ch; text-align: center; }
+@media print {
+  header.site { display: none; }
+  body { font-size: 10.5pt; }
+  .wrap { padding: 0; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Flashcards — Print Sheet</h1>
+  <p class="note">Every card, in CSV order. Cut the rows apart to quiz yourself on paper.
+  <a href="index.html">Back to the cards</a></p>
+  <section class="deck"><h2>Ai Basics<span class="labels"> Term → Definition</span></h2><table><thead><tr><th>#</th><th>Term</th><th>Definition</th><th>Known?</th></tr></thead><tbody><tr><td class="num">1</td><td class="front">Prompt</td><td class="back">A question or instruction you give an AI to get a response</td><td class="mark">☐</td></tr><tr><td class="num">2</td><td class="front">Large language model</td><td class="back">An AI trained on lots of text that predicts what should come next</td><td class="mark">☐</td></tr><tr><td class="num">3</td><td class="front">Token</td><td class="back">A chunk of text (about a word) that an AI reads one piece at a time</td><td class="mark">☐</td></tr><tr><td class="num">4</td><td class="front">Chatbot</td><td class="back">A conversational program you ask questions in plain English</td><td class="mark">☐</td></tr><tr><td class="num">5</td><td class="front">Hallucination</td><td class="back">When an AI makes something up and states it confidently</td><td class="mark">☐</td></tr><tr><td class="num">6</td><td class="front">Context window</td><td class="back">How much text the AI can keep in mind at once during a conversation</td><td class="mark">☐</td></tr><tr><td class="num">7</td><td class="front">Fine-tuning</td><td class="back">Extra training that specializes a general AI model for one job</td><td class="mark">☐</td></tr><tr><td class="num">8</td><td class="front">Agent</td><td class="back">An AI that can take multi-step actions on your behalf not just chat</td><td class="mark">☐</td></tr><tr><td class="num">9</td><td class="front">System prompt</td><td class="back">Standing instructions that tell an AI how to behave before you talk</td><td class="mark">☐</td></tr><tr><td class="num">10</td><td class="front">API</td><td class="back">A way for programs to talk to each other over the network</td><td class="mark">☐</td></tr></tbody></table></section>
+<section class="deck"><h2>Healthcare Study<span class="labels"> Term → Definition</span></h2><table><thead><tr><th>#</th><th>Term</th><th>Definition</th><th>Known?</th></tr></thead><tbody><tr><td class="num">1</td><td class="front">Vital signs</td><td class="back">Four core measurements: temperature pulse respirations and blood pressure</td><td class="mark">☐</td></tr><tr><td class="num">2</td><td class="front">Tachycardia</td><td class="back">A resting heart rate above the normal range (generally over 100 in adults)</td><td class="mark">☐</td></tr><tr><td class="num">3</td><td class="front">Hypoglycemia</td><td class="back">Blood sugar that is lower than the safe range</td><td class="mark">☐</td></tr><tr><td class="num">4</td><td class="front">Baseline</td><td class="back">A patient&#x27;s usual normal value used to spot meaningful change</td><td class="mark">☐</td></tr><tr><td class="num">5</td><td class="front">SBAR</td><td class="back">A structured handoff format: Situation Background Assessment Recommendation</td><td class="mark">☐</td></tr><tr><td class="num">6</td><td class="front">PRN</td><td class="back">From Latin pro re nata: as needed rather than on a fixed schedule</td><td class="mark">☐</td></tr><tr><td class="num">7</td><td class="front">NPO</td><td class="back">Nothing by mouth (nil per os) before a procedure or test</td><td class="mark">☐</td></tr><tr><td class="num">8</td><td class="front">Tolerance</td><td class="back">When a dose stops producing the same effect over time</td><td class="mark">☐</td></tr></tbody></table></section>
+</div>
+</body>
+</html>
