@@ -1,4 +1,10 @@
-__pycache__/
 *.py[cod]
-.pytest_cache/
+*.pyc
+.env
+.env.*
 .opencode/
+.pytest_cache/
+.venv/
+__pycache__/
+dist/*.tmp
+node_modules/
